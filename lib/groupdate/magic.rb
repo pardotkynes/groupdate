@@ -36,7 +36,7 @@ module Groupdate
       adapter_name = relation.connection.adapter_name
       query =
         case adapter_name
-        when "MySQL", "Mysql2", "Mysql2Spatial"
+        when "MySQL", "Mysql2"
           case field
           when :day_of_week # Sunday = 0, Monday = 1, etc
             # use CONCAT for consistent return type (String)
@@ -108,11 +108,19 @@ module Groupdate
 
     def perform(relation, method, *args, &block)
       # undo reverse since we do not want this to appear in the query
-      reverse = relation.send(:reverse_order_value)
+      
+      #reverse = relation.send(:reverse_order_value)
+      reverse = relation.send(:reverse_order)
       if reverse
         relation = relation.except(:reverse_order)
       end
+
       order = relation.order_values.first
+      # order based on default field
+      if order.blank?
+        order = @field
+      end
+
       if order.is_a?(String)
         parts = order.split(" ")
         reverse_order = (parts.size == 2 && (parts[0].to_sym == field || (activerecord42? && parts[0] == "#{relation.quoted_table_name}.#{relation.quoted_primary_key}")) && parts[1].to_s.downcase == "desc")
@@ -140,7 +148,7 @@ module Groupdate
           raise "Be sure to install time zone support - https://github.com/ankane/groupdate#for-mysql"
         end
 
-      series(count, (options.key?(:default_value) ? options[:default_value] : 0), multiple_groups, reverse)
+      series(count, 0, multiple_groups, reverse)
     end
 
     protected
@@ -253,7 +261,7 @@ module Groupdate
               when :month_of_year
                 key = Date.new(2014, key, 1).to_time
               end
-              I18n.localize(key, format: options[:format].to_s, locale: locale)
+              I18n.localize(key, :format => options[:format].to_s, :locale => locale)
             end
           end
         else
