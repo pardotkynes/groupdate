@@ -1,6 +1,9 @@
 module Enumerable
   Groupdate::FIELDS.each do |field|
-    define_method :"group_by_#{field}" do |options = {}, &block|
+    #define_method :"group_by_#{field}" do |options = {}, &block|
+    define_method "group_by_#{field}" do |options, &block|
+      #
+      options ||= {}
       if block
         Groupdate::Magic.new(field, options).group_by(self, &block)
       else
