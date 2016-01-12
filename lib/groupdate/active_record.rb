@@ -16,9 +16,9 @@ module ActiveRecord
     if ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR < 2
 
       def method_missing_with_hack(method, *args, &block)
-        puts "MISSING METHOD: #{method.inspect}"
+        
         if Groupdate::METHODS.include?(method)
-          puts "Sending in GroupDate..."
+          
           scoping { @klass.send(method, *args, &block) }
         else
           puts "Method missing without hack....."
