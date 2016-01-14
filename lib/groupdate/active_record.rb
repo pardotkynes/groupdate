@@ -21,7 +21,7 @@ module ActiveRecord
           
           scoping { @klass.send(method, *args, &block) }
         else
-          puts "Method missing without hack....."
+          #puts "Method missing without hack....."
           method_missing_without_hack(method, *args, &block)
         end
       end
